@@ -1,6 +1,6 @@
 # Server URM
 
-Para el correcto funcionamiento de este programa debes de poner todas estas carpetas dentro de tu entorno visual e instalar los pasos a continuacion.
+Para el correcto funcionamiento de este programa debes de poner todas estas carpetas dentro de tu entorno virtual e instalar los pasos a continuacion.
 
 ### Pasos
 
