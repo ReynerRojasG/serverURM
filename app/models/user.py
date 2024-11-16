@@ -1,21 +1,34 @@
-from app import db 
+from . import db
+from flask_login import UserMixin
+from app import login_manager
 
-class User(db.Model):
-    __tablename__ = 'user'
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
-    user_id = db.Column(db.Integer, primary_key=True)
-    university_id = db.Column(db.Integer, db.ForeignKey('university.university_id'), nullable=True)
-    user_name = db.Column(db.String(45), unique=True, nullable=False)
-    user_type = db.Column(db.String(14), nullable=False)
-    user_password = db.Column(db.String(10), nullable=False)
-    user_identification = db.Column(db.String(10), nullable=False)
+class User(db.Model, UserMixin):
+    __tablename__ = 'users'
 
-    def __init__(self, university_id, user_name, user_password, user_type, user_identification):
-        self.university_id = university_id
-        self.user_name = user_name
-        self.user_password = user_password
-        self.user_type = user_type
-        self.user_identification = user_identification
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(20), nullable=False, unique=True)
+    password = db.Column(db.String(80), nullable=False)
+     
+    def create(username, password):
+        new_user = User(username=username, password=password)
+        db.session.add(new_user)
+        db.session.commit()
+        return new_user
+
+    def delete(user_id):
+        delete_user = User.query.filter_by(id=user_id).first()
+        if delete_user is not None:
+            db.session.delete(delete_user)
+            db.session.commit()
+
+    def update(user_id, updated_data):
+        pass
+       # User.query.filter_by(id=user_id).update(updated_data)
+    #    update_user = User.query.filter_by(id=user_id).first()
 
     def __repr__(self):
-        return f'<User {self.user_id}>'
+        return '<User %r>' % self.username

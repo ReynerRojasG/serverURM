@@ -1,37 +1,33 @@
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
+from flask import Flask, render_template
+from flask_login import LoginManager
+from flask_bcrypt import Bcrypt
+from app.models import db
+from app.utils import register_error_handlers, register_blueprints
+
+flask_bcrypt = Bcrypt()
+login_manager = LoginManager()
+login_manager.login_view = "users.login"
 
 
-db = SQLAlchemy()
+def init_app(testing=False):
+    app = Flask(__name__, template_folder="views", static_folder="public")
+    app.config.from_pyfile("config.py")
 
-def create_app():
-    app = Flask(__name__)
-    app.config['SECRET_KEY'] = 'supersecretkey'
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:1234@localhost/avi'
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    
+    with app.app_context():
+        # include routes
+        @app.get("/")
+        def welcome():
+            return render_template("welcome.html")
+
+        register_extensions(app)
+        register_blueprints(app)
+        register_error_handlers(app)
+        db.create_all()
+
+        return app
+
+
+def register_extensions(app):
     db.init_app(app)
-
-    from app.controllers.user_controller import user_bp
-    from app.controllers.university_controller import university_bp
-    from app.controllers.faculty_controller import faculty_bp
-    from app.controllers.department_controller import department_bp
-    from app.controllers.course_controller import course_bp
-    from app.controllers.assignment_controller import assignment_bp
-    from app.controllers.submissions_controller import submission_bp
-    from app.controllers.registration_controller import registration_bp
-    from app.controllers.ai_answer_controller import ai_answer_bp
-
-    app.register_blueprint(user_bp, url_prefix='/users') 
-    app.register_blueprint(university_bp, url_prefix='/universities')
-    app.register_blueprint(faculty_bp, url_prefix='/faculties')
-    app.register_blueprint(department_bp, url_prefix='/department')
-    app.register_blueprint(course_bp, url_prefix='/course')
-    app.register_blueprint(assignment_bp, url_prefix='/assignments')
-    app.register_blueprint(submission_bp, url_prefix='/submission')
-    app.register_blueprint(registration_bp, url_prefix='/registration')
-    app.register_blueprint(ai_answer_bp, url_prefix='/answer')
-
-
-
-    return app
+    flask_bcrypt.init_app(app)
+    login_manager.init_app(app)

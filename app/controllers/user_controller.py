@@ -1,119 +1,117 @@
-from flask import Blueprint, request, jsonify, current_app
+from flask import render_template, redirect, url_for
 from app.models.user import User
-from app import db  
-import jwt
-import datetime
-from app.utils.decorators import token_required  
+from app.forms.user.LoginForm import LoginForm
+from app.forms.user.RegisterForm import RegisterForm
+from flask_login import login_user, login_required, logout_user, current_user
+from app import flask_bcrypt
 
-user_bp = Blueprint('user_bp', __name__)
 
-@user_bp.route('/register', methods=['POST'])
-def register():
-    data = request.json
-    university_id = data.get('university_id')
-    user_name = data.get('user_name')
-    user_password = data.get('user_password')
-    user_type = data.get('user_type')
-    user_identification = data.get('user_identification')
+def index():
+    """ 
+    index 
+    """
 
-    existing_user = User.query.filter_by(user_name=user_name).first()
-    if existing_user:
-        return jsonify({'message': 'El usuario ya existe'}), 409  
+    pass
 
-    new_user = User(
-        university_id=university_id,
-        user_name=user_name,
-        user_password=user_password,  
-        user_type=user_type,
-        user_identification=user_identification
-    )
+def create():
+    """ 
+    create 
+    """
 
-    db.session.add(new_user)
-    db.session.commit()
+    pass
 
-    return jsonify({'message': 'Usuario creado satisfactoriamente'}), 201  
 
-@user_bp.route('/login', methods=['POST'])
+def store():
+    """ 
+    store 
+    """
+
+    pass
+
+
+def show(user_id):
+    """ 
+    show 
+
+    @user_id: id of the user
+     
+    """
+
+    return f"user {user_id}"
+
+def edit(user_id):
+    """ 
+    edit 
+
+    @user_id: id of the user
+    """
+
+    pass
+
+def update(user_id):
+    """ 
+    update 
+
+    @user_id: id of the user
+    """
+
+    pass
+
+
+def delete(user_id):
+    """ 
+    delete 
+
+    @user_id: id of the user
+
+    """
+
+    pass
+
+@login_required
+def dashboard():
+    return render_template('user/dashboard.html')
+
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('users.login'))
+
+
 def login():
-    data = request.form
-    username = data.get('id')  
-    password = data.get('password')  
+    if current_user.is_authenticated:
+        return redirect(url_for('users.dashboard'))
 
-    user = User.query.filter_by(user_name=username, user_password=password).first()
 
-    if user:
-        token = jwt.encode({
-            'user': user.user_name,
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(days=30)
-        }, current_app.config['SECRET_KEY'], algorithm='HS256')
+    form = LoginForm()
 
-        return jsonify({'jwt': token, 'userID': user.user_id, 'Uid': user.university_id, 'name': user.user_name, 'type': user.user_type, 'userCed': user.user_identification})
+    if form.validate_on_submit():
+        user = User.query.filter_by(username=form.username.data).first()
+        if user:
+            if flask_bcrypt.check_password_hash(user.password, form.password.data):
+                login_user(user)
+                return redirect(url_for('users.dashboard'))
 
-    return jsonify({'message': 'Login fallido'}), 401
+    return render_template('user/login.html', form=form)
 
-@user_bp.route('/delete', methods=['DELETE'])
-@token_required
-def delete_user():
-    data = request.json
-    user_name = data.get('user_name')
-    user_delete = User.query.filter_by(user_name=user_name).first()
+def register():
+    if current_user.is_authenticated:
+        return redirect(url_for('users.dashboard'))
 
-    if user_delete:
-        db.session.delete(user_delete)
-        db.session.commit()
-        return jsonify({'message': 'Usuario eliminado correctamente'}), 200
-    else:
-        return jsonify({'message': 'Usuario no encontrado'}), 404
 
-@user_bp.route('/get/<user_jwt>', methods=['GET'])
-@token_required
-def read_all_users(user_jwt):
-    users = User.query.all()  
 
-    if not users:
-        return jsonify({'message': 'No hay usuarios registrados'}), 404
+    form = RegisterForm()
 
-    users_list = []
-    for user in users:
-        users_list.append({
-            'user_id': user.user_id,
-            'university_id': user.university_id,
-            'user_name': user.user_name,
-            'user_type': user.user_type,
-            'user_password': user.user_password,
-            'user_identification': user.user_identification
-        })
+    if form.validate_on_submit() and form.password.data == form.confirm_password.data:
+        hashed_password = flask_bcrypt.generate_password_hash(form.password.data)
 
-    return jsonify(users_list), 200 
+        # create separate service for this
+        # new_user = User(username=form.username.data, password=hashed_password)
+        # print(new_user)
+        # db.session.add(new_user)
+        # db.session.commit()
+        new_user = User.create(username=form.username.data, password=hashed_password)
+        
 
-@user_bp.route('/update', methods=['PATCH'])      
-@token_required
-def update_user():
-    data = request.json
-    user_id = data.get('user_id')
-
-    if not user_id:
-            return jsonify({'message': 'El campo user_id es requerido'}), 400
-
-    user = User.query.filter_by(user_id=user_id).first()
-
-    if not user:
-        return jsonify({'message': 'Usuario no encontrado'}), 404
-
-    if 'university_id' in data:
-        user.university_id = data['university_id']
-    if 'user_name' in data:
-        user.user_name = data['user_name']
-    if 'user_type' in data:
-        user.user_type = data['user_type']
-    if 'user_password' in data:
-        user.user_password = data['user_password']
-    if 'user_identification' in data:
-        user.user_identification = data['user_identification']  
-
-    try:
-        db.session.commit()
-        return jsonify({'message': 'Usuario actualizado satisfactoriamente'}), 200
-    except Exception as e:
-        db.session.rollback()  
-        return jsonify({'message': 'Error al actualizar el usuario en la base de datos', 'error': str(e)}), 500
+        return redirect(url_for('users.login'))
+    return render_template('user/register.html', form=form)
