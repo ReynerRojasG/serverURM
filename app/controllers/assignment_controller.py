@@ -87,7 +87,7 @@ def read_all_assignments(user_jwt):
 
     return jsonify(assignments_list), 200  
 
-@assignment_bp.route('/update', methods=['PATCH'])      
+@assignment_bp.route('/update', methods=['PUT'])      
 @token_required
 def update_assignment():
     data = request.json

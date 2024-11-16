@@ -62,7 +62,7 @@ def read_all_faculties(user_jwt):
     return jsonify(faculties_list), 200        
 
 
-@faculty_bp.route('/update', methods=['PATCH'])      
+@faculty_bp.route('/update', methods=['PUT'])      
 @token_required
 def update_faculty():
     data = request.json

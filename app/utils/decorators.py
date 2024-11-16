@@ -8,7 +8,7 @@ def token_required(f):
         data = request.get_json()
         token = None
 
-        if request.method in ['POST', 'DELETE', 'PATCH'] and data:
+        if request.method in ['POST', 'DELETE', 'PATCH', 'PUT'] and data:
             token = data.get('user_jwt')
 
         if not token:

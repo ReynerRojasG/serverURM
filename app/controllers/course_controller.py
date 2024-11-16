@@ -64,7 +64,7 @@ def read_all_courses(user_jwt):
 
     return jsonify(courses_list), 200   
 
-@course_bp.route('/update', methods=['PATCH'])      
+@course_bp.route('/update', methods=['PUT'])      
 @token_required
 def update_course():
     data = request.json

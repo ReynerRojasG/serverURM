@@ -77,7 +77,7 @@ def read_all_registrations(user_jwt):
 
     return jsonify(registrations_list), 200  
 
-@registration_bp.route('/update', methods=['PATCH'])      
+@registration_bp.route('/update', methods=['PUT'])      
 @token_required
 def update_registration():
     data = request.json

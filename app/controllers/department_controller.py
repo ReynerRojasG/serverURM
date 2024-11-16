@@ -61,7 +61,7 @@ def read_all_departments(user_jwt):
 
     return jsonify(departments_list), 200    
  
-@department_bp.route('/update', methods=['PATCH'])      
+@department_bp.route('/update', methods=['PUT'])      
 @token_required
 def update_department():
     data = request.json

@@ -96,8 +96,7 @@ def read_all_submissions(user_jwt):
 
     return jsonify(submissions_list), 200  
 
-
-@submission_bp.route('/update', methods=['PATCH'])
+@submission_bp.route('/update', methods=['PUT']) 
 @token_required
 def update_submission():
     data = request.json
@@ -118,7 +117,14 @@ def update_submission():
     if 'comment_ai' in data:
         submission.comment_ai = data['comment_ai']
     if 'comment_professor' in data:
-        submission.comment_professor = data['comment_professor']    
+        submission.comment_professor = data['comment_professor']   
+    if 'submission_status' in data:
+        submission.submission_status = data['submission_status']   
+    if 'submission_file' in data:
+        submission.submission_file = data['submission_file']   
+    if 'submission_date' in data:
+        submission.submission_date = data['submission_date']      
+
     try:
         db.session.commit()
         if score_updated:
@@ -129,3 +135,4 @@ def update_submission():
     except Exception as e:
         db.session.rollback()
         return jsonify({'message': 'Error al actualizar la entrega', 'error': str(e)}), 500
+

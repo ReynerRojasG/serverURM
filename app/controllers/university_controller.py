@@ -53,7 +53,7 @@ def read_all_universities(user_jwt):
 
     return jsonify(universities_list), 200
 
-@university_bp.route('/update', methods=['PATCH'])      
+@university_bp.route('/update', methods=['PUT'])      
 @token_required
 def update_university():
     data = request.json

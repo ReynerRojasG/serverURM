@@ -51,7 +51,7 @@ def read_all_answers(user_jwt):
 
     return jsonify(answers_list), 200  
 
-@ai_answer_bp.route('/update', methods=['PATCH'])      
+@ai_answer_bp.route('/update', methods=['PUT'])      
 @token_required
 def update_answer():
     data = request.json
