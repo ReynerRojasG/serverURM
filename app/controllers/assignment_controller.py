@@ -4,13 +4,13 @@ from app.models.registration import Registration
 from app.models.user import User
 from app import db
 from app.utils.decorators import token_required  
-from app.services.telegram_service import notify_assignment
 
 assignment_bp = Blueprint('assignment_bp', __name__)
 
 @assignment_bp.route('/register', methods=['POST'])
 @token_required
 def create_assignment():
+    from app.services.telegram_service import notify_assignment
     data = request.json  
     course_id = data.get('course_id')
     professor_id = data.get('professor_id')

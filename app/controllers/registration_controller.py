@@ -4,13 +4,13 @@ from app.models.registration  import Registration
 from app.models.course import Course
 from app import db
 from app.utils.decorators import token_required  
-from app.services.telegram_service import notify_register
 
 registration_bp = Blueprint('registration_bp', __name__)
 
 @registration_bp.route('/register', methods=['POST'])
 @token_required
 def create_registration():
+    from app.services.telegram_service import notify_register
     data = request.json 
 
     student_id = data.get('student_id')

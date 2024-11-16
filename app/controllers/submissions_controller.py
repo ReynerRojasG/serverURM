@@ -4,14 +4,13 @@ from app.models.submission import Submission
 from app.models.assignment import Assignment
 from app import db
 from app.utils.decorators import token_required  
-from app.services.telegram_service import notify_score
-from app.services.telegram_service import notify_submission
 
 submission_bp = Blueprint('submission_bp', __name__)
 
 @submission_bp.route('/register', methods=['POST'])
 @token_required
 def create_submission():
+    from app.services.telegram_service import notify_submission
     data = request.json  
 
     required_fields = ['assignment_id', 'student_id', 'submission_date', 'submission_file', 'submission_status']
@@ -99,6 +98,7 @@ def read_all_submissions(user_jwt):
 @submission_bp.route('/update', methods=['PUT']) 
 @token_required
 def update_submission():
+    from app.services.telegram_service import notify_score
     data = request.json
     submission_id = data.get('submission_id')
 
