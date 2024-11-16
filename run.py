@@ -5,8 +5,8 @@ import threading
 app = create_app()
 
 if __name__ == "__main__":
-    bot_thread = threading.Thread(target=start_bot)
-    bot_thread.start()
+    #bot_thread = threading.Thread(target=start_bot)
+    #bot_thread.start()
     app.run(debug=True, use_reloader=False)
 
     
