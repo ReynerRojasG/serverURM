@@ -4,7 +4,7 @@ class Ai_answer(db.Model):
     __tablename__ = 'ai_answer'
 
     answer_id = db.Column(db.Integer, primary_key=True) 
-    answer = db.Column(db.String(100), unique=True, nullable=False) 
+    answer = db.Column(db.String(1000), unique=True, nullable=False) 
 
     def __init__(self, answer):
         self.answer = answer

@@ -12,8 +12,8 @@ class Submission(db.Model):
     submission_date = db.Column(db.String(10), nullable=False)
     submission_file = db.Column(db.String(300), nullable=False)
     submission_status = db.Column(db.String(15), nullable=False)
-    comment_ai = db.Column(db.String(45), nullable=True)
-    comment_professor = db.Column(db.String(45), nullable=True)
+    comment_ai = db.Column(db.String(1000), nullable=True)
+    comment_professor = db.Column(db.String(1000), nullable=True)
 
     assignment = db.relationship('Assignment', backref=db.backref('submissions', lazy=True))
     student = db.relationship('User', backref=db.backref('submissions', lazy=True))
